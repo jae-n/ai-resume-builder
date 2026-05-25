@@ -70,7 +70,10 @@ app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
 db.init_app(app)
 bcrypt.init_app(app)
 
-CORS(app, supports_credentials=True)   # allow cookies cross-origin (phone on same LAN)
+FRONTEND_URL = os.environ.get("FRONTEND_URL", "http://localhost:5000")
+CORS(app, 
+     resources={r"/api/*": {"origins": FRONTEND_URL}},
+     supports_credentials=True)   # allow cookies cross-origin (phone on same LAN)
 
 api_v1 = Api(app, prefix="/api/v1")
 
