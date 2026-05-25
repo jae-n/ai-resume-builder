@@ -1,0 +1,12 @@
+flask
+flask-restful
+flask-cors
+flask-sqlalchemy
+flask-login
+flask-bcrypt
+flask-dotenv
+python-dotenv
+pymysql
+cryptography
+google-generativeai
+reportlab
