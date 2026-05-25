@@ -34,6 +34,7 @@ from reportlab.lib.enums import TA_CENTER, TA_RIGHT
 from models import db, bcrypt, User, VaultPersonal, VaultJob, VaultProject
 from models import VaultSkill, VaultEducation, JobDescription, Resume
 
+
 #  Bootstrap 
 
 load_dotenv()
@@ -71,12 +72,18 @@ app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
 db.init_app(app)
 bcrypt.init_app(app)
 
+from flask_cors import CORS
+
 FRONTEND_URL = os.environ.get("FRONTEND_URL", "http://localhost:5000")
+
 CORS(app,
-     resources={r"/api/*": {"origins": ["http://localhost:5000", FRONTEND_URL]}},
+     origins=["http://localhost:5000", 
+               "http://localhost:3000",
+               "https://ai-resume-builder-ot69.vercel.app"],
      supports_credentials=True,
-     allow_headers=["Content-Type", "Authorization"],
-     methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"])   # allow cookies cross-origin (phone on same LAN)
+     allow_headers=["Content-Type", "Authorization", "X-Requested-With"],
+     methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+     expose_headers=["Content-Type", "Authorization"])   # allow cookies cross-origin (phone on same LAN)
 
 api_v1 = Api(app, prefix="/api/v1")
 
