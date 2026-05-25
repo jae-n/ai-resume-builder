@@ -58,7 +58,8 @@ if not all([db_user, db_password, db_host, db_name]):
     raise ValueError("Database environment variables are not set. Check DB_USER, DB_PASSWORD, DB_HOST, DB_NAME in your .env file.")
 
 app.config["SQLALCHEMY_DATABASE_URI"] = (
-    f"mysql+pymysql://{db_user}:{db_password}@{db_host}:{db_port}/{db_name}?charset=utf8mb4"
+    f"mysql+pymysql://{db_user}:{db_password}@{db_host}:{db_port}/{db_name}"
+    f"?charset=utf8mb4&ssl_verify_cert=false"
 )
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
