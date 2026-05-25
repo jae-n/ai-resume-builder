@@ -17,7 +17,7 @@ from datetime import datetime
 
 from flask import Flask, request, jsonify, send_file, render_template, g
 from flask_restful import Api, Resource
-from flask_cors import CORS
+
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from dotenv import load_dotenv
 
@@ -40,6 +40,20 @@ from models import VaultSkill, VaultEducation, JobDescription, Resume
 load_dotenv()
 
 app = Flask(__name__, static_folder="static", template_folder="templates")
+
+def after_request(response):
+    origin = request.headers.get('Origin', '')
+    allowed = [
+        "http://localhost:5000",
+        "http://localhost:3000",
+        "https://ai-resume-builder-ot69.vercel.app"
+    ]
+    if origin in allowed:
+        response.headers['Access-Control-Allow-Origin'] = origin
+        response.headers['Access-Control-Allow-Credentials'] = 'true'
+        response.headers['Access-Control-Allow-Headers'] = 'Content-Type,Authorization,X-Requested-With'
+        response.headers['Access-Control-Allow-Methods'] = 'GET,PUT,POST,DELETE,OPTIONS'
+    return response
 
 # Config
 # Secret key — required, no fallback
@@ -73,11 +87,7 @@ db.init_app(app)
 bcrypt.init_app(app)
 
 FRONTEND_URL = os.environ.get("FRONTEND_URL", "http://localhost:5000")
-CORS(app,
-     resources={r"/api/*": {"origins": ["http://localhost:5000", FRONTEND_URL]}},
-     supports_credentials=True,
-     allow_headers=["Content-Type", "Authorization"],
-     methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"])   # allow cookies cross-origin (phone on same LAN)
+
 
 api_v1 = Api(app, prefix="/api/v1")
 
