@@ -1,90 +1,161 @@
 # AI Resume Builder
 
-Mobile-friendly web app with a Flask REST API backend, Gemini AI generation, and PDF export.
+AI Resume Builder is a full-stack resume generation app with a Flask backend, MySQL storage, Gemini-powered AI resume generation, and a browser-based frontend.
 
-## Project structure
+## What it does
+
+- User authentication with email/password registration and login
+- Save personal profile data, work history, projects, skills, and education in a secure vault
+- Store multiple job descriptions and choose one to tailor your resume
+- Generate AI-crafted resumes using Google Gemini
+- Export resumes as PDF or plain text
+- View resume history and make edits before exporting
+
+## Repository layout
 
 ```
-resume_app/
-├── app.py               ← Flask REST API (all endpoints)
-├── requirements.txt
-├── vault.json           ← auto-created when you save your vault
-├── jd.json              ← auto-created when you save a job description
-├── resume.json          ← auto-created when you generate a resume
-└── templates/
-    └── index.html       ← mobile-first frontend (single page)
+backend/
+  app.py           ← Flask REST API and app server
+  models.py        ← SQLAlchemy models, auth + resume data schema
+  requirements.txt ← Python dependencies
+  schema.sql       ← MySQL schema definition
+  env.example      ← sample environment configuration
+frontend/
+  index.html       ← single-page app UI
+  static/
+    css/style.css  ← app styling
+    js/app.js      ← frontend logic and API integration
+  vercel.json      ← deployment config
+README.md          ← project documentation
 ```
+
+## Prerequisites
+
+- Python 3.11+ (or a compatible Python 3 version)
+- MySQL server
+- Google Gemini API key
+- `pip` available in your Python environment
 
 ## Setup
 
-### 1. Install dependencies
+1. Clone the repository:
+
 ```bash
-pip install -r requirements.txt
+git clone <repo-url> "ai builder"
+cd "ai builder"
 ```
 
-### 2. Get a Gemini API key
-Go to https://aistudio.google.com/app/apikey and create a free key.
+2. Create and activate a virtual environment:
 
-### 3. Set your API key
-**Mac / Linux:**
 ```bash
-export GEMINI_API_KEY=your_key_here
+python -m venv .venv
+.venv\Scripts\Activate.ps1  # PowerShell
+# or .venv\Scripts\activate.bat for CMD
 ```
-**Windows (cmd):**
-```cmd
-set GEMINI_API_KEY=your_key_here
+
+3. Install backend dependencies:
+
+```bash
+pip install -r backend/requirements.txt
 ```
-**Windows (PowerShell):**
+
+4. Create the MySQL database:
+
+```sql
+CREATE DATABASE resume_builder CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+```
+
+You can also import the schema if you want:
+
+```bash
+mysql -u root -p resume_builder < backend/schema.sql
+```
+
+5. Copy `backend/env.example` to `.env` and fill in your values.
+
 ```powershell
-$env:GEMINI_API_KEY="your_key_here"
+Copy-Item backend\env.example .env
 ```
 
-### 4. Run the server
+Then update `.env` with:
+
+- `SECRET_KEY`
+- `DB_HOST`
+- `DB_PORT`
+- `DB_NAME`
+- `DB_USER`
+- `DB_PASSWORD`
+- `GEMINI_API_KEY`
+- `PORT` (optional)
+- `FRONTEND_URL`
+
+6. Start the backend server:
+
 ```bash
-python app.py
+python backend/app.py
 ```
 
-The server starts on `http://0.0.0.0:5000` — accessible from your phone and any device on the same Wi-Fi.
+The API will be available at `http://0.0.0.0:5000` by default.
 
-### 5. Open on your phone
-1. Find your computer's local IP (e.g. `192.168.1.42`)  
-   - Mac: System Settings → Wi-Fi → Details  
-   - Windows: `ipconfig` in cmd → look for IPv4 Address  
-2. Open `http://192.168.1.42:5000` in your phone's browser
+## Environment variables
 
+The backend reads these values from `.env`:
 
-## REST API reference
+- `SECRET_KEY` — Flask secret key for session cookies
+- `DB_HOST` — MySQL host
+- `DB_PORT` — MySQL port (default `3306`)
+- `DB_NAME` — MySQL database name
+- `DB_USER` — MySQL username
+- `DB_PASSWORD` — MySQL password
+- `GEMINI_API_KEY` — Google Gemini API key
+- `PORT` — optional server port
+- `FRONTEND_URL` — allowed frontend origin URL
+
+## Running the app
+
+After the backend is running, open the frontend in your browser:
+
+- If the frontend is served by the backend: `http://localhost:5000/`
+- Or open `frontend/index.html` in a browser if you want to run the client directly
+
+## Main API endpoints
 
 Base URL: `http://localhost:5000/api/v1`
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | /health | API status + Gemini key check |
-| GET | /vault | Load profile vault |
-| PUT | /vault | Save profile vault |
-| GET | /jd | Load job description |
-| PUT | /jd | Save job description |
-| GET | /resume | Load last generated resume |
-| PUT | /resume | Save edited resume |
-| DELETE | /resume | Clear current resume |
-| POST | /resume/generate | Generate resume via Gemini |
-| POST | /export/pdf | Download resume as PDF |
-| POST | /export/text | Get plain-text resume |
+- `GET /health` — health check and database status
+- `POST /auth/register` — register a new user
+- `POST /auth/login` — log in an existing user
+- `POST /auth/logout` — log out
+- `GET /auth/me` — get current user info
+- `GET /vault` — load saved profile vault
+- `PUT /vault` — save/update profile vault
+- `GET /jd` — list saved job descriptions
+- `POST /jd` — create a new job description
+- `GET /jd/<id>` — get a single job description
+- `PUT /jd/<id>` — update a job description
+- `DELETE /jd/<id>` — delete a job description
+- `GET /resume` — list generated resumes
+- `GET /resume/<id>` — retrieve a saved resume
+- `PUT /resume/<id>` — update a saved resume
+- `DELETE /resume/<id>` — delete a resume
+- `POST /resume/generate` — generate a new resume with Gemini
+- `POST /export/pdf` — export a resume as PDF
+- `POST /export/text` — export a resume as plain text
 
-### Generate endpoint body
-```json
-{
-  "jd_text": "Full job description text...",
-  "format": "chronological",
-  "tone": "professional",
-  "instructions": "Keep to one page"
-}
-```
+## Using the app
 
-## How to use
+1. Register or log in.
+2. Fill in your profile vault with contact info, summary, work history, projects, skills, and education.
+3. Save a job description for the role you want to target.
+4. Select a saved JD and choose resume format, tone, and extra instructions.
+5. Generate your resume, review it, edit if needed, then export to PDF or text.
 
-1. **Vault tab** — enter your info once (name, jobs, projects, skills, education). Tap **Save vault**.
-2. **Job Desc tab** — paste the job posting. Tap **Save job description**.
-3. **Generate tab** — pick format/tone, tap **Generate resume**. Gemini tailors it to the JD.
-4. **Edit tab** — tweak any section. Tap **Save edits**.
-5. **Preview tab** — review the final resume. Tap **Export PDF** to download.
+## Notes
+
+- The backend uses Flask, Flask-Login, Flask-SQLAlchemy, and Google Gemini.
+- Data is persisted in MySQL.
+- The frontend is a static single-page app under `frontend/`.
+
+---
+
+Enjoy building resumes with AI! 🎯
