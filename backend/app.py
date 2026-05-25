@@ -65,25 +65,19 @@ app.config["SQLALCHEMY_DATABASE_URI"] = (
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 # Secure cookie settings
-app.config["SESSION_COOKIE_SECURE"]   = os.environ.get("FLASK_ENV") == "production"
+app.config["SESSION_COOKIE_SECURE"]   = True
 app.config["SESSION_COOKIE_HTTPONLY"] = True
-app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
+app.config["SESSION_COOKIE_SAMESITE"] = "None" 
 
 db.init_app(app)
 bcrypt.init_app(app)
 
-from flask_cors import CORS
-
 FRONTEND_URL = os.environ.get("FRONTEND_URL", "http://localhost:5000")
-
 CORS(app,
-     origins=["http://localhost:5000", 
-               "http://localhost:3000",
-               "https://ai-resume-builder-ot69.vercel.app"],
+     resources={r"/api/*": {"origins": ["http://localhost:5000", FRONTEND_URL]}},
      supports_credentials=True,
-     allow_headers=["Content-Type", "Authorization", "X-Requested-With"],
-     methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-     expose_headers=["Content-Type", "Authorization"])   # allow cookies cross-origin (phone on same LAN)
+     allow_headers=["Content-Type", "Authorization"],
+     methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"])   # allow cookies cross-origin (phone on same LAN)
 
 api_v1 = Api(app, prefix="/api/v1")
 
