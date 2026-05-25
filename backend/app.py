@@ -72,9 +72,11 @@ db.init_app(app)
 bcrypt.init_app(app)
 
 FRONTEND_URL = os.environ.get("FRONTEND_URL", "http://localhost:5000")
-CORS(app, 
-     resources={r"/api/*": {"origins": FRONTEND_URL}},
-     supports_credentials=True)   # allow cookies cross-origin (phone on same LAN)
+CORS(app,
+     resources={r"/api/*": {"origins": ["http://localhost:5000", FRONTEND_URL]}},
+     supports_credentials=True,
+     allow_headers=["Content-Type", "Authorization"],
+     methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"])   # allow cookies cross-origin (phone on same LAN)
 
 api_v1 = Api(app, prefix="/api/v1")
 
