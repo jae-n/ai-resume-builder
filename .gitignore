@@ -1,0 +1,65 @@
+
+#  AI Resume Builder — .gitignore
+
+# ── Environment & secrets ─────────────────────
+.env
+.env.local
+.env.production
+*.env
+
+# ── Python ────────────────────────────────────
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# ── Virtual environments ──────────────────────
+.venv/
+venv/
+env/
+ENV/
+.virtualenv/
+
+# ── Database files ────────────────────────────
+*.sqlite3
+*.db
+vault.json
+jd.json
+resume.json
+
+# ── VS Code ───────────────────────────────────
+.vscode/
+*.code-workspace
+
+# ── OS files ─────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ── Logs ─────────────────────────────────────
+*.log
+*.err
+logs/
+
+# ── Distribution / packaging ──────────────────
+dist/
+build/
+*.egg-info/
+*.egg
+.eggs/
+
+# ── Node (if you add a frontend build later) ──
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# ── PDFs generated locally ────────────────────
+*.pdf
+
+# ── Backup files ──────────────────────────────
+*.bak
+*.backup
+*.orig

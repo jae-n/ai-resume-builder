@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+  <meta name="theme-color" content="#1a1a1a" />
+  <title>AI Resume Builder</title>
+  <link rel="stylesheet" href="/static/css/style.css" />
+</head>
+<body>
+
+<!--AUTH SCREEN  (shown when logged out)-->
+<div id="auth-screen" class="auth-screen hidden">
+  <div class="auth-card">
+    <div class="auth-logo">📄</div>
+    <h1 class="auth-title">AI Resume Builder</h1>
+    <p class="auth-sub">Powered by Gemini · Saves to MySQL</p>
+
+    <div class="auth-tabs">
+      <button class="auth-tab active" onclick="showAuthTab('login',this)">Log in</button>
+      <button class="auth-tab"        onclick="showAuthTab('register',this)">Register</button>
+    </div>
+
+    <!-- Login form -->
+    <div id="auth-login">
+      <div class="field"><label>Email</label><input id="login-email" type="email" placeholder="you@email.com" /></div>
+      <div class="field"><label>Password</label><input id="login-password" type="password" placeholder="••••••••" /></div>
+      <div id="login-error" class="auth-error hidden"></div>
+      <button class="btn btn-primary btn-full" onclick="doLogin()">Log in</button>
+    </div>
+
+    <!-- Register form -->
+    <div id="auth-register" class="hidden">
+      <div class="field"><label>Full name</label><input id="reg-name" type="text" placeholder="Jane Smith" /></div>
+      <div class="field"><label>Email</label><input id="reg-email" type="email" placeholder="you@email.com" /></div>
+      <div class="field"><label>Password (min 8 chars)</label><input id="reg-password" type="password" placeholder="••••••••" /></div>
+      <div id="reg-error" class="auth-error hidden"></div>
+      <button class="btn btn-primary btn-full" onclick="doRegister()">Create account</button>
+    </div>
+  </div>
+</div>
+
+<!--     MAIN APP  (shown when logged in) -->
+<div id="app" class="app hidden">
+
+  <!-- Header -->
+  <div class="header">
+    <span style="font-size:18px">📄</span>
+    <h1>AI Resume Builder</h1>
+    <span id="header-user" class="header-user"></span>
+    <button class="btn-icon" onclick="doLogout()" title="Log out">⎋</button>
+    <small id="api-status">…</small>
+  </div>
+
+  <!-- Nav tabs -->
+  <nav class="nav">
+    <div class="nav-tab active" data-tab="vault"    onclick="switchTab('vault',this)">   <span class="icon">🔒</span>Vault</div>
+    <div class="nav-tab"        data-tab="jd"       onclick="switchTab('jd',this)">      <span class="icon">📋</span>Job&nbsp;Desc</div>
+    <div class="nav-tab"        data-tab="generate" onclick="switchTab('generate',this)"><span class="icon">✨</span>Generate</div>
+    <div class="nav-tab"        data-tab="edit"     onclick="switchTab('edit',this)">    <span class="icon">✏️</span>Edit</div>
+    <div class="nav-tab"        data-tab="preview"  onclick="switchTab('preview',this)"> <span class="icon">👁</span>Preview</div>
+    <div class="nav-tab"        data-tab="history"  onclick="switchTab('history',this)"> <span class="icon">🕓</span>History</div>
+    
+  </nav>
+
+  <!-- Panels -->
+  <div class="panels">
+
+    <!-- ── VAULT ── -->
+    <div id="panel-vault" class="panel active">
+      <div class="section-label">Personal info</div>
+      <div class="card"><div class="card-body">
+        <div class="row2">
+          <div class="field"><label>Full name</label><input id="v-name" type="text" placeholder="Jane Smith" /></div>
+          <div class="field"><label>Email</label><input id="v-email" type="email" placeholder="jane@email.com" /></div>
+        </div>
+        <div class="row2">
+          <div class="field"><label>Phone</label><input id="v-phone" type="tel" placeholder="(555) 000-0000" /></div>
+          <div class="field"><label>City, State</label><input id="v-location" type="text" placeholder="Dallas, TX" /></div>
+        </div>
+        <div class="row2">
+          <div class="field"><label>LinkedIn URL</label><input id="v-linkedin" type="url" placeholder="linkedin.com/in/jane" /></div>
+          <div class="field"><label>GitHub URL</label><input id="v-github" type="url" placeholder="github.com/jane" /></div>
+        </div>
+        <div class="row2">
+          <div class="field"><label>Website / Portfolio</label><input id="v-website" type="url" placeholder="janesmith.dev" /></div>
+          <div class="field"><label>Citizenship (optional)</label><input id="v-citizenship" type="text" placeholder="US Citizen" /></div>
+        </div>
+      </div></div>
+
+      <div class="section-label">Professional summary</div>
+      <div class="card"><div class="card-body">
+        <textarea id="v-summary" rows="3" placeholder="Brief overview of your professional background…"></textarea>
+      </div></div>
+
+      <div class="section-label section-label-row">
+        Work history
+        <button class="btn btn-sm" onclick="addJobCard()">+ Add job</button>
+      </div>
+      <div id="jobs-container"></div>
+
+      <div class="section-label section-label-row">
+        Projects
+        <button class="btn btn-sm" onclick="addProjectCard()">+ Add project</button>
+      </div>
+      <div id="projects-container"></div>
+
+      <div class="section-label section-label-row">
+        Skills
+        <button class="btn btn-sm" onclick="addSkillCard()">+ Add category</button>
+      </div>
+      <div id="skills-container"></div>
+
+      <div class="section-label section-label-row">
+        Education
+        <button class="btn btn-sm" onclick="addEduCard()">+ Add education</button>
+      </div>
+      <div id="education-container"></div>
+    </div><!-- /vault -->
+
+    <!-- ── JOB DESCRIPTION ── -->
+    <div id="panel-jd" class="panel">
+      <div class="section-label section-label-row">
+        Saved job descriptions
+        <button class="btn btn-sm" onclick="loadJDList()">↻ Refresh</button>
+      </div>
+      <div id="jd-list"></div>
+
+      <div class="section-label">New job description</div>
+      <div class="card"><div class="card-body">
+        <div class="row2">
+          <div class="field"><label>Job title</label><input id="jd-title" type="text" placeholder="Senior Software Engineer" /></div>
+          <div class="field"><label>Company</label><input id="jd-company" type="text" placeholder="Acme Corp" /></div>
+        </div>
+        <div class="field"><label>Full job description</label>
+          <textarea id="jd-text" rows="14" placeholder="Paste the complete job posting here…"></textarea>
+        </div>
+      </div></div>
+    </div><!-- /jd -->
+
+    <!-- ── GENERATE ── -->
+    <div id="panel-generate" class="panel">
+      <div class="section-label">Select job description</div>
+      <div class="card"><div class="card-body">
+        <div class="field"><label>Job description</label>
+          <select id="gen-jd-select"><option value="">— select a saved JD —</option></select>
+        </div>
+      </div></div>
+
+      <div class="section-label">Resume settings</div>
+      <div class="card"><div class="card-body">
+        <div class="field"><label>Format</label>
+          <select id="gen-format">
+            <option value="chronological">Reverse chronological</option>
+            <option value="functional">Skills-based / functional</option>
+            <option value="hybrid">Hybrid / combination</option>
+          </select>
+        </div>
+        <div class="field"><label>Tone</label>
+          <select id="gen-tone">
+            <option value="professional">Professional</option>
+            <option value="confident">Confident &amp; direct</option>
+            <option value="technical">Technical &amp; detailed</option>
+            <option value="creative">Creative &amp; dynamic</option>
+          </select>
+        </div>
+        <div class="field"><label>Extra instructions (optional)</label>
+          <textarea id="gen-extra" rows="2" placeholder="e.g. Keep to one page. Emphasise leadership."></textarea>
+        </div>
+      </div></div>
+
+      <div id="gen-log" class="card hidden">
+        <div class="card-body log-body" id="gen-log-text"></div>
+      </div>
+    </div><!-- /generate -->
+
+    <!-- ── EDIT ── -->
+    <div id="panel-edit" class="panel">
+      <div id="edit-empty" class="empty">
+        <div class="big-icon">✏️</div>
+        <p>Generate a resume first, then edit each section here.</p>
+      </div>
+      <div id="edit-content" class="hidden"></div>
+    </div><!-- /edit -->
+
+    <!-- ── PREVIEW ── -->
+    <div id="panel-preview" class="panel">
+      <div id="preview-empty" class="empty">
+        <div class="big-icon">👁</div>
+        <p>Generate a resume to preview and export it.</p>
+      </div>
+      <div id="preview-content" class="hidden">
+        <div id="resume-doc" class="resume-doc"></div>
+      </div>
+    </div><!-- /preview -->
+
+    <!-- ── HISTORY ── -->
+    <div id="panel-history" class="panel">
+      <div class="section-label section-label-row">
+        Resume history
+        <button class="btn btn-sm" onclick="loadHistory()">↻ Refresh</button>
+      </div>
+      <div id="history-list">
+        <div class="empty"><div class="big-icon">🕓</div><p>No resumes yet.</p></div>
+      </div>
+    </div><!-- /history -->
+
+    <!-- ── API DOCS ── -->
+    
+
+<!-- Action bar -->
+<div class="action-bar hidden" id="action-bar">
+  <button class="btn btn-primary btn-full" id="action-btn" onclick="handleAction()">
+    <span id="action-label">💾 Save vault</span>
+  </button>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script src="/static/js/app.js"></script>
+</body>
+</html>
