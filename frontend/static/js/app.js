@@ -2,7 +2,7 @@
 
 const API = window.location.hostname === 'localhost'
   ? 'http://localhost:5000/api/v1'
-  : 'https://your-render-app.onrender.com/api/v1';
+  : 'https://dashboard.render.com/web/srv-d8a84g99rddc739t2ol0/deploys/dep-d8a86cd7vvec73cgv1v0';
 
 //  App state
 let currentTab    = 'vault';
