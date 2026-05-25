@@ -8,5 +8,6 @@ flask-dotenv
 python-dotenv
 pymysql
 cryptography
-google-generativeai
+google-genai
 reportlab
+PyJWT
