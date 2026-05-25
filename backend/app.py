@@ -41,14 +41,29 @@ load_dotenv()
 
 app = Flask(__name__, static_folder="static", template_folder="templates")
 
+ALLOWED_ORIGINS = [
+    "http://localhost:5000",
+    "http://localhost:3000",
+    "https://ai-resume-builder-ot69.vercel.app"
+]
+
+@app.before_request
+def handle_preflight():
+    if request.method == "OPTIONS":
+        response = app.make_response("")
+        origin = request.headers.get('Origin', '')
+        if origin in ALLOWED_ORIGINS:
+            response.headers['Access-Control-Allow-Origin'] = origin
+            response.headers['Access-Control-Allow-Credentials'] = 'true'
+            response.headers['Access-Control-Allow-Headers'] = 'Content-Type,Authorization,X-Requested-With'
+            response.headers['Access-Control-Allow-Methods'] = 'GET,PUT,POST,DELETE,OPTIONS'
+            response.headers['Access-Control-Max-Age'] = '86400'
+        return response
+
+@app.after_request
 def after_request(response):
     origin = request.headers.get('Origin', '')
-    allowed = [
-        "http://localhost:5000",
-        "http://localhost:3000",
-        "https://ai-resume-builder-ot69.vercel.app"
-    ]
-    if origin in allowed:
+    if origin in ALLOWED_ORIGINS:
         response.headers['Access-Control-Allow-Origin'] = origin
         response.headers['Access-Control-Allow-Credentials'] = 'true'
         response.headers['Access-Control-Allow-Headers'] = 'Content-Type,Authorization,X-Requested-With'
