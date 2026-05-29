@@ -187,10 +187,10 @@ def call_gemini(prompt: str) -> str:
 
 def build_pdf(resume: dict) -> bytes:
     buffer = BytesIO()
-    W = letter[0] - 1.5 * inch
+    W = letter[0] - 0.2*inch
     doc = SimpleDocTemplate(buffer, pagesize=letter,
-                            leftMargin=0.75*inch, rightMargin=0.75*inch,
-                            topMargin=0.65*inch,  bottomMargin=0.65*inch)
+                        leftMargin=0.1*inch, rightMargin=0.1*inch,
+                        topMargin=0.1*inch,  bottomMargin=0.1*inch)
 
     def s(name, **kw):
         base = dict(fontName="Helvetica", fontSize=10, leading=13, spaceAfter=0, spaceBefore=0)
