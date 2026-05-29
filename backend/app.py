@@ -245,13 +245,27 @@ def build_pdf(resume: dict) -> bytes:
     if edu_entries:
         story += section_block("Education")
         for e in edu_entries:
-            story.append(lr_table(e.get("institution",""), e.get("location",""),
+            institution = e.get("institution") or ""
+            location    = e.get("location")    or ""
+            degree      = e.get("degree")      or ""
+            date        = e.get("date")        or ""
+            coursework  = e.get("coursework")  or ""
+
+            if not institution and not degree:
+                continue  # skip empty education entries
+
+            story.append(lr_table(institution, location,
                 ls=s("EL", fontName="Helvetica-Bold", fontSize=10, leading=13),
                 rs=s("ER", fontSize=10, leading=13, alignment=TA_RIGHT, fontName="Helvetica-Oblique")))
-            story.append(Paragraph(f"{e.get('degree','')}   {e.get('date','')}", S_ITALIC))
-            if e.get("coursework","").strip():
-                story.append(Paragraph(f"Relevant Coursework: {e['coursework']}", S_BODY))
+            
+            if degree or date:
+                story.append(Paragraph(f"{degree}   {date}".strip(), S_ITALIC))
+            
+            if coursework.strip():
+                story.append(Paragraph(f"Relevant Coursework: {coursework}", S_BODY))
+            
             story.append(Spacer(1, 3))
+
 
     # Experience
     if resume.get("experience"):
@@ -265,7 +279,8 @@ def build_pdf(resume: dict) -> bytes:
                 meta += f"  -  {job['location']}"
             story.append(Paragraph(meta, S_ITALIC))
             for b in job.get("bullets", []):
-                story.append(Paragraph(f"• {b.strip().lstrip('•').strip()}", S_BULLET))
+                if b and b.strip():
+                    story.append(Paragraph(f"• {b.strip().lstrip('•').strip()}", S_BULLET))
             story.append(Spacer(1, 4))
 
     # Research
