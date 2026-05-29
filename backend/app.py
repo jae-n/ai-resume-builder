@@ -291,7 +291,8 @@ def build_pdf(resume: dict) -> bytes:
             story.append(lr_table(f"{r.get('title','')} | {r.get('institution','')}",
                                   date_str, ls=s("RL", fontName="Helvetica-Bold", fontSize=10, leading=13)))
             for b in r.get("bullets", []):
-                story.append(Paragraph(f"• {b.strip().lstrip('•').strip()}", S_BULLET))
+                if b and b.strip():
+                    story.append(Paragraph(f"• {b.strip().lstrip('•').strip()}", S_BULLET))
             story.append(Spacer(1, 4))
 
     # Projects
@@ -305,7 +306,8 @@ def build_pdf(resume: dict) -> bytes:
             desc = proj.get("desc","")
             bullets = desc if isinstance(desc, list) else [l for l in str(desc).split("\n") if l.strip()]
             for b in bullets:
-                story.append(Paragraph(f"• {b.strip().lstrip('•').strip()}", S_PBULLET))
+                if b and b.strip():
+                    story.append(Paragraph(f"• {b.strip().lstrip('•').strip()}", S_PBULLET))
             story.append(Spacer(1, 3))
 
     # Skills
@@ -313,7 +315,11 @@ def build_pdf(resume: dict) -> bytes:
     if skill_sections:
         story += section_block("Skills and Interests")
         for sk in skill_sections:
-            line = f"<b>{sk.get('category','')}:</b> {sk.get('values','')}" if sk.get("category") else sk.get("values","")
+            category = sk.get("category") or ""
+            values   = sk.get("values")   or ""
+            if not values.strip():
+                continue  # skip empty skill sections
+            line = f"<b>{category}:</b> {values}" if category else values
             story.append(Paragraph(line, S_SKILL))
     elif resume.get("skills","").strip():
         story += section_block("Skills")
