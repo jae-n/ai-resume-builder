@@ -11,3 +11,4 @@ cryptography
 google-genai
 reportlab
 PyJWT
+requests

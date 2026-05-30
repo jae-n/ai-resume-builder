@@ -34,6 +34,11 @@ from reportlab.lib.enums import TA_CENTER, TA_RIGHT
 from models import db, bcrypt, User, VaultPersonal, VaultJob, VaultProject
 from models import VaultSkill, VaultEducation, JobDescription, Resume
 
+# keep the ping active
+import threading
+import time
+import requests
+
 
 #  Bootstrap 
 
@@ -735,6 +740,28 @@ class ExportText(Resource):
         for edu in resume_data.get("education_entries",[]):
             lines.append(f"\n{edu.get('degree','')} - {edu.get('institution','')}")
         return {"text": "\n".join(lines)}, 200
+
+def keep_alive():
+    """Pings the health endpoint every 5 minutes to prevent Render from sleeping."""
+    # Wait 30 seconds after startup before first ping
+    time.sleep(30)
+    url = os.environ.get("https://ai-resume-builder-backend-xi6s.onrender.com", "")
+    if not url:
+        print("RENDER_EXTERNAL_URL not set — keep alive disabled")
+        return
+    while True:
+        try:
+            response = requests.get(f"{url}/api/v1/health", timeout=10)
+            print(f"[keep-alive] pinged {url} → {response.status_code}")
+        except Exception as e:
+            print(f"[keep-alive] ping failed: {e}")
+        time.sleep(600)  # 10min
+
+# Start keep-alive thread in production only
+if os.environ.get("FLASK_ENV") == "production":
+    thread = threading.Thread(target=keep_alive, daemon=True)
+    thread.start()
+    print("[keep-alive] background thread started")
 
 
 #  Health
