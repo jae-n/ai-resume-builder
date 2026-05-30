@@ -495,7 +495,7 @@ function renderEditPanel(resume) {
     </div>
 
     <div style="margin-bottom:16px">
-      <div class="section-label">Education</div>
+      <div class="section-label" style="display:flex;justify-content:space-between;align-items:center">Education <button class="btn btn-sm" onclick="editAddEdu()">+ Add</button></div>
       ${(resume.education_entries||[]).map((edu, i) => `
         <div class="list-card" style="margin-bottom:10px">
           <div class="list-card-header">
@@ -519,7 +519,7 @@ function renderEditPanel(resume) {
     </div>
 
     <div style="margin-bottom:16px">
-      <div class="section-label">Experience</div>
+      <div class="section-label" style="display:flex;justify-content:space-between;align-items:center">Experience <button class="btn btn-sm" onclick="editAddExp()">+ Add</button></div>
       ${(resume.experience||[]).map((job, i) => `
         <div class="list-card" style="margin-bottom:10px">
           <div class="list-card-header">
@@ -569,7 +569,7 @@ function renderEditPanel(resume) {
     </div>` : ''}
 
     <div style="margin-bottom:16px">
-      <div class="section-label">Projects</div>
+      <div class="section-label" style="display:flex;justify-content:space-between;align-items:center">Projects <button class="btn btn-sm" onclick="editAddProject()">+ Add</button></div>
       ${(resume.projects||[]).map((p, i) => `
         <div class="list-card" style="margin-bottom:10px">
           <div class="list-card-header">
@@ -587,7 +587,7 @@ function renderEditPanel(resume) {
     </div>
 
     <div style="margin-bottom:16px">
-      <div class="section-label">Skills</div>
+      <div class="section-label" style="display:flex;justify-content:space-between;align-items:center">Skills <button class="btn btn-sm" onclick="editAddSkill()">+ Add</button></div>
       ${(resume.skills_sections||[]).map((sk, i) => `
         <div class="list-card" style="margin-bottom:10px">
           <div class="list-card-header">
@@ -636,6 +636,52 @@ function editDeleteProject(i) {
 function editDeleteSkill(i) {
   const r = collectEdits(currentResume.resume);
   r.skills_sections.splice(i, 1);
+  currentResume.resume = r;
+  renderEditPanel(r);
+}
+
+// Edit panel add functions
+function editAddExp() {
+  const r = collectEdits(currentResume.resume);
+  r.experience.push({
+    title: '', company: '', start: '', end: '', location: '', bullets: []
+  });
+  currentResume.resume = r;
+  renderEditPanel(r);
+}
+
+function editAddEdu() {
+  const r = collectEdits(currentResume.resume);
+  if (!r.education_entries) r.education_entries = [];
+  r.education_entries.push({
+    institution: '', location: '', degree: '', date: '', coursework: ''
+  });
+  currentResume.resume = r;
+  renderEditPanel(r);
+}
+
+function editAddProject() {
+  const r = collectEdits(currentResume.resume);
+  if (!r.projects) r.projects = [];
+  r.projects.push({ name: '', stack: '', desc: [] });
+  currentResume.resume = r;
+  renderEditPanel(r);
+}
+
+function editAddSkill() {
+  const r = collectEdits(currentResume.resume);
+  if (!r.skills_sections) r.skills_sections = [];
+  r.skills_sections.push({ category: '', values: '' });
+  currentResume.resume = r;
+  renderEditPanel(r);
+}
+
+function editAddResearch() {
+  const r = collectEdits(currentResume.resume);
+  if (!r.research) r.research = [];
+  r.research.push({
+    title: '', institution: '', start: '', end: '', bullets: []
+  });
   currentResume.resume = r;
   renderEditPanel(r);
 }
