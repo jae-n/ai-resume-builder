@@ -896,3 +896,11 @@ function esc(str) {
     .replace(/&/g,'&amp;').replace(/</g,'&lt;')
     .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
+
+// job description editor clear function
+function clearJD() {
+  document.getElementById('jd-title').value   = '';
+  document.getElementById('jd-company').value = '';
+  document.getElementById('jd-text').value    = '';
+  toast('✓ Job description cleared');
+}
