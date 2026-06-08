@@ -76,11 +76,13 @@ function deletePrompt() {
 }
 
 function clearPrompt() {
-  document.getElementById('gen-extra').value  = '';
-  document.getElementById('gen-format').value = 'chronological';
-  document.getElementById('gen-tone').value   = 'professional';
-  document.getElementById('saved-prompt-label').textContent = '';
-  toast('Cleared');
+  document.getElementById('gen-extra').value      = '';
+  document.getElementById('gen-format').value     = 'chronological';
+  document.getElementById('gen-tone').value       = 'professional';
+  document.getElementById('gen-jd-select').value  = '';
+  const label = document.getElementById('saved-prompt-label');
+  if (label) label.textContent = '';
+  toast('✓ All fields cleared');
 }
 
 function updatePromptLabel() {
@@ -91,3 +93,4 @@ function updatePromptLabel() {
     ? `${prompts.length} saved prompt${prompts.length > 1 ? 's' : ''}`
     : '';
 }
+
