@@ -51,6 +51,7 @@ async function showApp() {
   await loadJDList();
   await loadHistory();
   updateActionBar();
+  await loadSavedPrompts();
 }
 
 /*  AUTH*/

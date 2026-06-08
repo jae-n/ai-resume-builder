@@ -32,12 +32,13 @@ from reportlab.platypus import (SimpleDocTemplate, Paragraph,
 from reportlab.lib.enums import TA_CENTER, TA_RIGHT
 
 from models import db, bcrypt, User, VaultPersonal, VaultJob, VaultProject
-from models import VaultSkill, VaultEducation, JobDescription, Resume
+from models import VaultSkill, VaultEducation, JobDescription, Resume, SavedPrompt
 
 # keep the ping active
 import threading
 import time
 import requests
+
 
 
 #  Bootstrap 
@@ -781,6 +782,42 @@ class Health(Resource):
         }, 200
 
 
+class PromptList(Resource):
+    @login_required
+    def get(self):
+        prompts = SavedPrompt.query.filter_by(user_id=current_user.id)\
+                                   .order_by(SavedPrompt.created_at.desc()).all()
+        return {"prompts": [p.to_dict() for p in prompts]}, 200
+
+    @login_required
+    def post(self):
+        body  = request.get_json(silent=True) or {}
+        name  = body.get("name", "").strip()
+        extra = body.get("extra", "").strip()
+        if not name or not extra:
+            return {"error": "name and extra are required."}, 400
+        p = SavedPrompt(
+            user_id=current_user.id,
+            name=name,
+            extra=extra,
+            format=body.get("format", "chronological"),
+            tone=body.get("tone", "professional")
+        )
+        db.session.add(p)
+        db.session.commit()
+        return {"message": "Prompt saved.", "prompt": p.to_dict()}, 201
+
+
+class PromptDetail(Resource):
+    @login_required
+    def delete(self, prompt_id):
+        p = SavedPrompt.query.filter_by(id=prompt_id, user_id=current_user.id).first()
+        if not p:
+            return {"error": "Not found."}, 404
+        db.session.delete(p)
+        db.session.commit()
+        return {"message": "Deleted."}, 200
+
 #  Register routes
 
 
@@ -797,6 +834,8 @@ api_v1.add_resource(ResumeDetail,    "/resume/<int:resume_id>")
 api_v1.add_resource(ResumeGenerate,  "/resume/generate")
 api_v1.add_resource(ExportPDF,       "/export/pdf")
 api_v1.add_resource(ExportText,      "/export/text")
+api_v1.add_resource(PromptList,   "/prompts")
+api_v1.add_resource(PromptDetail, "/prompts/<int:prompt_id>")
 
 # Serve frontend 
 

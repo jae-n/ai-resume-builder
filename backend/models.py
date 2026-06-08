@@ -230,3 +230,27 @@ class Resume(db.Model):
                 "format": self.format, "tone": self.tone,
                 "created_at": self.created_at.isoformat(),
                 "updated_at": self.updated_at.isoformat()}
+
+
+class SavedPrompt(db.Model):
+    __tablename__ = "saved_prompts"
+
+    id         = db.Column(db.Integer,     primary_key=True, autoincrement=True)
+    user_id    = db.Column(db.Integer,     db.ForeignKey("users.id"), nullable=False)
+    name       = db.Column(db.String(200), nullable=False, default="")
+    extra      = db.Column(db.Text,        nullable=False)
+    format     = db.Column(db.String(50),  nullable=False, default="chronological")
+    tone       = db.Column(db.String(50),  nullable=False, default="professional")
+    created_at = db.Column(db.DateTime,    nullable=False, default=datetime.utcnow)
+
+    user = db.relationship("User", backref="saved_prompts")
+
+    def to_dict(self):
+        return {
+            "id":         self.id,
+            "name":       self.name,
+            "extra":      self.extra,
+            "format":     self.format,
+            "tone":       self.tone,
+            "created_at": self.created_at.isoformat()
+        }
