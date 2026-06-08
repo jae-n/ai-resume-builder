@@ -501,7 +501,11 @@ function renderEditPanel(resume) {
         <div class="list-card" style="margin-bottom:10px">
           <div class="list-card-header">
             <span>${esc(edu.institution||'Education')}</span>
-            <button class="btn btn-sm btn-danger" onclick="event.stopPropagation();editDeleteEdu(${i})">✕ Remove</button>
+            <div style="display:flex;gap:4px">
+              <button class="btn btn-sm" onclick="event.stopPropagation();editMoveEdu(${i},'up')" ${i===0?'disabled':''}>↑</button>
+              <button class="btn btn-sm" onclick="event.stopPropagation();editMoveEdu(${i},'down')" ${i===(resume.education_entries.length-1)?'disabled':''}>↓</button>
+              <button class="btn btn-sm btn-danger" onclick="event.stopPropagation();editDeleteEdu(${i})">✕</button>
+            </div>
           </div>
           <div class="list-card-body">
             <div class="row2">
@@ -525,7 +529,11 @@ function renderEditPanel(resume) {
         <div class="list-card" style="margin-bottom:10px">
           <div class="list-card-header">
             <span>${esc(job.title||'')} — ${esc(job.company||'')}</span>
-            <button class="btn btn-sm btn-danger" onclick="event.stopPropagation();editDeleteExp(${i})">✕ Remove</button>
+            <div style="display:flex;gap:4px">
+              <button class="btn btn-sm" onclick="event.stopPropagation();editMoveExp(${i},'up')" ${i===0?'disabled':''}>↑</button>
+              <button class="btn btn-sm" onclick="event.stopPropagation();editMoveExp(${i},'down')" ${i===(resume.experience.length-1)?'disabled':''}>↓</button>
+              <button class="btn btn-sm btn-danger" onclick="event.stopPropagation();editDeleteExp(${i})">✕</button>
+            </div>
           </div>
           <div class="list-card-body">
             <div class="row2">
@@ -551,7 +559,11 @@ function renderEditPanel(resume) {
         <div class="list-card" style="margin-bottom:10px">
           <div class="list-card-header">
             <span>${esc(r.title||'')} | ${esc(r.institution||'')}</span>
-            <button class="btn btn-sm btn-danger" onclick="event.stopPropagation();editDeleteResearch(${i})">✕ Remove</button>
+            <div style="display:flex;gap:4px">
+              <button class="btn btn-sm" onclick="event.stopPropagation();editMoveResearch(${i},'up')" ${i===0?'disabled':''}>↑</button>
+              <button class="btn btn-sm" onclick="event.stopPropagation();editMoveResearch(${i},'down')" ${i===(resume.research.length-1)?'disabled':''}>↓</button>
+              <button class="btn btn-sm btn-danger" onclick="event.stopPropagation();editDeleteResearch(${i})">✕</button>
+            </div>
           </div>
           <div class="list-card-body">
             <div class="row2">
@@ -575,7 +587,11 @@ function renderEditPanel(resume) {
         <div class="list-card" style="margin-bottom:10px">
           <div class="list-card-header">
             <span>${esc(p.name||'Project')}</span>
-            <button class="btn btn-sm btn-danger" onclick="event.stopPropagation();editDeleteProject(${i})">✕ Remove</button>
+            <div style="display:flex;gap:4px">
+              <button class="btn btn-sm" onclick="event.stopPropagation();editMoveProject(${i},'up')" ${i===0?'disabled':''}>↑</button>
+              <button class="btn btn-sm" onclick="event.stopPropagation();editMoveProject(${i},'down')" ${i===(resume.projects.length-1)?'disabled':''}>↓</button>
+              <button class="btn btn-sm btn-danger" onclick="event.stopPropagation();editDeleteProject(${i})">✕</button>
+            </div>
           </div>
           <div class="list-card-body">
             <div class="field"><label>Project name</label><input id="e-proj-name-${i}" type="text" value="${esc(p.name||'')}" /></div>
@@ -593,8 +609,13 @@ function renderEditPanel(resume) {
         <div class="list-card" style="margin-bottom:10px">
           <div class="list-card-header">
             <span>${esc(sk.category||'Skills')}</span>
-            <button class="btn btn-sm btn-danger" onclick="event.stopPropagation();editDeleteSkill(${i})">✕ Remove</button>
+            <div style="display:flex;gap:4px">
+              <button class="btn btn-sm" onclick="event.stopPropagation();editMoveSkill(${i},'up')" ${i===0?'disabled':''}>↑</button>
+              <button class="btn btn-sm" onclick="event.stopPropagation();editMoveSkill(${i},'down')" ${i===(resume.skills_sections.length-1)?'disabled':''}>↓</button>
+              <button class="btn btn-sm btn-danger" onclick="event.stopPropagation();editDeleteSkill(${i})">✕</button>
+            </div>
           </div>
+
           <div class="list-card-body">
             <div class="field"><label>Category</label><input id="e-sk-cat-${i}" type="text" value="${esc(sk.category||'')}" /></div>
             <div class="field"><label>Skills (comma-separated)</label>
