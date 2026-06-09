@@ -246,90 +246,85 @@ def build_pdf(resume: dict) -> bytes:
         story.append(Paragraph(links, S_LINKS))
     story.append(Spacer(1, 4))
 
-    # Education
-    edu_entries = resume.get("education_entries") or []
-    if edu_entries:
-        story += section_block("Education")
-        for e in edu_entries:
-            institution = e.get("institution") or ""
-            location    = e.get("location")    or ""
-            degree      = e.get("degree")      or ""
-            date        = e.get("date")        or ""
-            coursework  = e.get("coursework")  or ""
+    # Render sections in user-defined order 
+    section_order = resume.get("section_order") or \
+                    ["education", "experience", "research", "projects", "skills"]
 
-            if not institution and not degree:
-                continue  # skip empty education entries
+    for section in section_order:
 
-            story.append(lr_table(institution, location,
-                ls=s("EL", fontName="Helvetica-Bold", fontSize=10, leading=13),
-                rs=s("ER", fontSize=10, leading=13, alignment=TA_RIGHT, fontName="Helvetica-Oblique")))
-            
-            if degree or date:
-                story.append(Paragraph(f"{degree}   {date}".strip(), S_ITALIC))
-            
-            if coursework.strip():
-                story.append(Paragraph(f"Relevant Coursework: {coursework}", S_BODY))
-            
-            story.append(Spacer(1, 3))
+        if section == "education":
+            edu_entries = resume.get("education_entries") or []
+            if not edu_entries: continue
+            story += section_block("Education")
+            for e in edu_entries:
+                institution = e.get("institution") or ""
+                location    = e.get("location")    or ""
+                degree      = e.get("degree")      or ""
+                date        = e.get("date")        or ""
+                coursework  = e.get("coursework")  or ""
+                if not institution and not degree: continue
+                story.append(lr_table(institution, location,
+                    ls=s("EL", fontName="Helvetica-Bold", fontSize=10, leading=13),
+                    rs=s("ER", fontSize=10, leading=13, alignment=TA_RIGHT, fontName="Helvetica-Oblique")))
+                if degree or date:
+                    story.append(Paragraph(f"{degree}   {date}".strip(), S_ITALIC))
+                if coursework.strip():
+                    story.append(Paragraph(f"Relevant Coursework: {coursework}", S_BODY))
+                story.append(Spacer(1, 3))
 
+        elif section == "experience":
+            if not resume.get("experience"): continue
+            story += section_block("Work Experience")
+            for job in resume["experience"]:
+                date_str = f"{job.get('start','')} - {job.get('end','')}"
+                story.append(lr_table(job.get("company",""), date_str,
+                    ls=s("CL", fontName="Helvetica-Bold", fontSize=10, leading=13)))
+                meta = job.get("title","")
+                if job.get("location",""):
+                    meta += f"  -  {job['location']}"
+                story.append(Paragraph(meta, S_ITALIC))
+                for b in job.get("bullets", []):
+                    if b and b.strip():
+                        story.append(Paragraph(f"• {b.strip().lstrip('•').strip()}", S_BULLET))
+                story.append(Spacer(1, 4))
 
-    # Experience
-    if resume.get("experience"):
-        story += section_block("Work Experience")
-        for job in resume["experience"]:
-            date_str = f"{job.get('start','')} - {job.get('end','')}"
-            story.append(lr_table(job.get("company",""), date_str,
-                ls=s("CL", fontName="Helvetica-Bold", fontSize=10, leading=13)))
-            meta = job.get("title","")
-            if job.get("location",""):
-                meta += f"  -  {job['location']}"
-            story.append(Paragraph(meta, S_ITALIC))
-            for b in job.get("bullets", []):
-                if b and b.strip():
-                    story.append(Paragraph(f"• {b.strip().lstrip('•').strip()}", S_BULLET))
-            story.append(Spacer(1, 4))
+        elif section == "research":
+            if not resume.get("research"): continue
+            story += section_block("Research Experience")
+            for r in resume["research"]:
+                date_str = f"{r.get('start','')} - {r.get('end','')}"
+                story.append(lr_table(f"{r.get('title','')} | {r.get('institution','')}",
+                                      date_str, ls=s("RL", fontName="Helvetica-Bold", fontSize=10, leading=13)))
+                for b in r.get("bullets", []):
+                    if b and b.strip():
+                        story.append(Paragraph(f"• {b.strip().lstrip('•').strip()}", S_BULLET))
+                story.append(Spacer(1, 4))
 
-    # Research
-    if resume.get("research"):
-        story += section_block("Research Experience")
-        for r in resume["research"]:
-            date_str = f"{r.get('start','')} - {r.get('end','')}"
-            story.append(lr_table(f"{r.get('title','')} | {r.get('institution','')}",
-                                  date_str, ls=s("RL", fontName="Helvetica-Bold", fontSize=10, leading=13)))
-            for b in r.get("bullets", []):
-                if b and b.strip():
-                    story.append(Paragraph(f"• {b.strip().lstrip('•').strip()}", S_BULLET))
-            story.append(Spacer(1, 4))
+        elif section == "projects":
+            if not resume.get("projects"): continue
+            story += section_block("Personal Projects")
+            for proj in resume["projects"]:
+                header = f"• {proj.get('name','')}"
+                if proj.get("stack",""):
+                    header += f" | {proj['stack']}"
+                story.append(Paragraph(header, S_PNAME))
+                desc = proj.get("desc","")
+                bullets = desc if isinstance(desc, list) else [l for l in str(desc).split("\n") if l.strip()]
+                for b in bullets:
+                    if b and b.strip():
+                        story.append(Paragraph(f"• {b.strip().lstrip('•').strip()}", S_PBULLET))
+                story.append(Spacer(1, 3))
 
-    # Projects
-    if resume.get("projects"):
-        story += section_block("Personal Projects")
-        for proj in resume["projects"]:
-            header = f"• {proj.get('name','')}"
-            if proj.get("stack",""):
-                header += f" | {proj['stack']}"
-            story.append(Paragraph(header, S_PNAME))
-            desc = proj.get("desc","")
-            bullets = desc if isinstance(desc, list) else [l for l in str(desc).split("\n") if l.strip()]
-            for b in bullets:
-                if b and b.strip():
-                    story.append(Paragraph(f"• {b.strip().lstrip('•').strip()}", S_PBULLET))
-            story.append(Spacer(1, 3))
-
-    # Skills
-    skill_sections = resume.get("skills_sections") or []
-    if skill_sections:
-        story += section_block("Skills and Interests")
-        for sk in skill_sections:
-            category = sk.get("category") or ""
-            values   = sk.get("values")   or ""
-            if not values.strip():
-                continue  # skip empty skill sections
-            line = f"<b>{category}:</b> {values}" if category else values
-            story.append(Paragraph(line, S_SKILL))
-    elif resume.get("skills","").strip():
-        story += section_block("Skills")
-        story.append(Paragraph(resume["skills"], S_BODY))
+        elif section == "skills":
+            skill_sections = resume.get("skills_sections") or []
+            if not skill_sections: continue
+            story += section_block("Skills and Interests")
+            for sk in skill_sections:
+                category = sk.get("category") or ""
+                values   = sk.get("values")   or ""
+                if not values.strip(): continue
+                line = f"<b>{category}:</b> {values}" if category else values
+                story.append(Paragraph(line, S_SKILL))
 
     doc.build(story)
     buffer.seek(0)
