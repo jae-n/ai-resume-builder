@@ -496,6 +496,20 @@ function renderEditPanel(resume) {
     </div>
 
     <div style="margin-bottom:16px">
+      <div class="section-label">Section Order</div>
+      <div class="card"><div class="card-body">
+        ${(resume.section_order || ['education','experience','research','projects','skills']).map((sec, i, arr) => `
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border)">
+            <span style="text-transform:capitalize;font-size:13px">${sec}</span>
+            <div style="display:flex;gap:4px">
+              <button class="btn btn-sm" onclick="moveSectionOrder(${i},'up')" ${i===0?'disabled':''}>↑</button>
+              <button class="btn btn-sm" onclick="moveSectionOrder(${i},'down')" ${i===arr.length-1?'disabled':''}>↓</button>
+            </div>
+          </div>`).join('')}
+      </div></div>
+    </div>
+
+    <div style="margin-bottom:16px">
       <div class="section-label" style="display:flex;justify-content:space-between;align-items:center">Education <button class="btn btn-sm" onclick="editAddEdu()">+ Add</button></div>
       ${(resume.education_entries||[]).map((edu, i) => `
         <div class="list-card" style="margin-bottom:10px">
@@ -534,7 +548,6 @@ function renderEditPanel(resume) {
               <button class="btn btn-sm" onclick="event.stopPropagation();editMoveExp(${i},'down')" ${i===(resume.experience.length-1)?'disabled':''}>↓</button>
               <button class="btn btn-sm btn-danger" onclick="event.stopPropagation();editDeleteExp(${i})">✕</button>
             </div>
-          </div>
           <div class="list-card-body">
             <div class="row2">
               <div class="field"><label>Title</label><input id="e-job-title-${i}" type="text" value="${esc(job.title||'')}" /></div>
@@ -761,6 +774,9 @@ function collectEdits(resume) {
     values:   val(`e-sk-vals-${i}`) ?? sk.values   ?? '',
   }));
 
+  r.section_order = resume.section_order ||
+    ['education', 'experience', 'research', 'projects', 'skills'];
+
   return r;
 }
 
@@ -924,4 +940,14 @@ function clearJD() {
   document.getElementById('jd-company').value = '';
   document.getElementById('jd-text').value    = '';
   toast('✓ Job description cleared');
+}
+
+function moveSectionOrder(i, direction) {
+  const r = collectEdits(currentResume.resume);
+  if (!r.section_order) {
+    r.section_order = ['education', 'experience', 'research', 'projects', 'skills'];
+  }
+  moveItem(r.section_order, i, direction);
+  currentResume.resume = r;
+  renderEditPanel(r);
 }
